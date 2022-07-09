@@ -10,7 +10,6 @@
 
 library(shiny)
 library(shinyjs)
-library(cidian)
 library(jiebaR)
 library(wordcloud2)
 library(xml2)
@@ -40,23 +39,24 @@ ui <- fluidPage(
         sidebarPanel(
             textAreaInput("url_text","请输入视频网址(可抓取做多个视频):", 
                       # value = "https://www.bilibili.com/video/BV1xK4y1r7Gy"),
-                      value = "https://www.bilibili.com/video/BV1gE411u7dF\nhttps://www.bilibili.com/video/BV1xK4y1r7Gy\nhttps://www.bilibili.com/video/BV1JW411c7WV?from=search&seid=6036054819977187147"),
+                      value = "https://www.bilibili.com/video/BV1ua411p7iA?spm_id_from=333.337.search-card.all.click&vd_source=84566f3ffd99685e26f9d41b7c8dff53"),
             
             
             actionButton("sure", "画出词云"),
             actionButton("add", "加一个视频"),
             actionButton("randomize", "随机一下"),
-            
+            textInput("stop_words","请输入要屏蔽的词:", 
+                      # value = "https://www.bilibili.com/video/BV1xK4y1r7Gy"),
+                      value = "弹幕,哇"),
             textInput("keyword_text","请输入关键词(work in progress):", 
                           # value = "https://www.bilibili.com/video/BV1xK4y1r7Gy"),
-                          value = "小樱"),
+                          value = ""),
         ),
         
         
 
         # Show a plot of the generated word cloud
         mainPanel(
-      
             htmlOutput("section_name", container = div),
             h3(textOutput("counts", container = div)),
             htmlOutput("caption", container = div),
@@ -69,8 +69,6 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-    
-  
       observe({
           
             url = strsplit(input$url_text, "\n")[[1]][strsplit(input$url_text, "\n")[[1]] != ""]
@@ -153,15 +151,19 @@ server <- function(input, output) {
               
               # remove the white space
               dm_vector <- sapply(dm_vector, function(x) {gsub(pattern = " ", replacement = "", x)})
+              
               return(dm_vector)
             }
             
             dumu_vec <- unlist(lapply(html.content, extrac_damu_vec))
-            
+            browser()
             # 进行分词
             mixseg <- worker()
             wordsC = segment(dumu_vec, mixseg)
             filter = c("了", "吧","啊", "哈哈哈","啊啊啊","我","是","你","就","的","这")
+            stop_words = input$stop_words
+            stop_words = str_split(stop_words, pattern = ",")[[1]]
+            filter = c(filter, stop_words)
             wordsC <- filter_segment(wordsC, filter)
             # decode_scel(scel = "./网络流行新词.scel",
             #             output = "网络流行新词.scel_2020-04-05_19_37_54.dict")
