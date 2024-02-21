@@ -156,11 +156,12 @@ server <- function(input, output) {
             }
             
             dumu_vec <- unlist(lapply(html.content, extrac_damu_vec))
-            browser()
+            # browser()
             # 进行分词
             mixseg <- worker()
+            
             wordsC = segment(dumu_vec, mixseg)
-            filter = c("了", "吧","啊", "哈哈哈","啊啊啊","我","是","你","就","的","这")
+            filter = c("了", "吧","啊", "哈哈哈","啊啊啊","我","是","你","他","就","的","这")
             stop_words = input$stop_words
             stop_words = str_split(stop_words, pattern = ",")[[1]]
             filter = c(filter, stop_words)
